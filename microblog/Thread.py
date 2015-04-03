@@ -46,7 +46,8 @@ class Thread:
 
 
 if __name__ == '__main__':
-  data = {'id': 123456, 'number': 0, 'text': '哈哈', 'parent': -1, 'children': [1, 2], 'depth': 0}
+  data = {'id': 123456, 'number': 0, 'text': '哈哈', 'parent': -1,
+          'children': [1, 2], 'depth': 0, 'label': 1, 'username': 'wangyc'}
   root = Node(data)
   thread = Thread(123456, [root])
   thread.setNodeFeatures(['Root'])
