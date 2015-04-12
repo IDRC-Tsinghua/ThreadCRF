@@ -12,16 +12,42 @@ class Feature:
     self.threshold = 0.5  # to be tuned
     print "Feature initialized"
 
-  def cosineSim(self, A, B):
-    assert len(A) == len(B)
+  def cosineSim(self, A, B, BOW=False):
     sum_AB = 0.0
     sum_A2 = 0.0
     sum_B2 = 0.0
-    for i in range(len(A)):
-      sum_AB += A[i] * B[i]
-      sum_A2 += A[i] ** 2
-      sum_B2 += B[i] ** 2
+    if BOW:
+      for i in list(set(A.keys()) & set(B.keys())):
+        sum_AB += A[i] * B[i]
+      for i in A:
+        sum_A2 += A[i] ** 2
+      for i in B:
+        sum_B2 += B[i] ** 2
+    else:
+      assert len(A) == len(B)
+      for i in range(len(A)):
+        sum_AB += A[i] * B[i]
+        sum_A2 += A[i] ** 2
+        sum_B2 += B[i] ** 2
     return sum_AB / (math.sqrt(sum_A2) * math.sqrt(sum_B2))
+
+  def distance(self, i, j, nodeList):
+    curNode = nodeList[i]
+    depth = 0
+    i_ancestor = {}
+    while curNode.number != 0:
+      i_ancestor[curNode.number] = depth
+      curNode = nodeList[curNode.parent]
+      depth += 1
+    i_ancestor[0] = depth
+
+    curNode = nodeList[j]
+    depth = 0
+    while not curNode.number in i_ancestor:
+      curNode = nodeList[curNode.parent]
+      depth += 1
+
+    return depth + i_ancestor[curNode.number]
 
   def extract(self, nodeList):
     return
@@ -82,7 +108,7 @@ class Parent(NodeFeature):
   def extract(self, nodeList):
     assert len(nodeList) > 0
     root = nodeList[0]
-    self.values[root.number] = 1
+    self.values[root.number] = 0
     if len(nodeList) == 1:
       return
     for node in nodeList[1:]:
@@ -103,11 +129,55 @@ class ParentSim(NodeFeature):
   def extract(self, nodeList):
     assert len(nodeList) > 0
     root = nodeList[0]
-    self.values[root.number] = 1
+    self.values[root.number] = 0
     if len(nodeList) == 1:
       return
     for node in nodeList[1:]:
       if self.cosineSim(node.vector, nodeList[node.parent].vector) >= self.threshold \
+          and node.label == nodeList[node.parent].label:
+        self.values[node.number] = 1
+      else:
+        self.values[node.number] = 0
+
+
+class ParentDiff(NodeFeature):
+  "test whether this node and its parent have very different text and different label"
+
+  def __init__(self):
+    NodeFeature.__init__(self)
+    self.name = "NodeFeature: ParentDiff(yi)"
+    print "NodeFeature ParentDiff(yi) initialized"
+
+  def extract(self, nodeList):
+    assert len(nodeList) > 0
+    root = nodeList[0]
+    self.values[root.number] = 0
+    if len(nodeList) == 1:
+      return
+    for node in nodeList[1:]:
+      if self.cosineSim(node.vector, nodeList[node.parent].vector) <= self.threshold \
+          and node.label != nodeList[node.parent].label:
+        self.values[node.number] = 1
+      else:
+        self.values[node.number] = 0
+
+
+class SelfRepost(NodeFeature):
+  "test whether this node and its parent are by the same author and have the same label"
+
+  def __init__(self):
+    NodeFeature.__init__(self)
+    self.name = "NodeFeature: SelfRepost(yi)"
+    print "NodeFeature SelfRepost(yi) initialized"
+
+  def extract(self, nodeList):
+    assert len(nodeList) > 0
+    root = nodeList[0]
+    self.values[root.number] = 0
+    if len(nodeList) == 1:
+      return
+    for node in nodeList[1:]:
+      if node.name == nodeList[node.parent].name \
           and node.label == nodeList[node.parent].label:
         self.values[node.number] = 1
       else:
@@ -177,6 +247,25 @@ class Sibling(EdgeFeature):
       for j in range(i + 1, len(nodeList)):
         if nodeList[i].parent == nodeList[j].parent and nodeList[i].label == nodeList[j].label:
           self.values[(nodeList[i].number, nodeList[j].number)] = 1
+        else:
+          self.values[(nodeList[i].number, nodeList[j].number)] = 0
+
+
+class Similarity(EdgeFeature):
+  "test whether two nodes have similar text and the same label"
+
+  def __init__(self):
+    EdgeFeature.__init__(self)
+    self.name = "EdgeFeature: Similarity(yi,yj)"
+    print "EdgeFeature Similarity(yi,yj) initialized"
+
+  def extract(self, nodeList):
+    assert len(nodeList) > 1
+    for i in range(0, len(nodeList)):
+      for j in range(i + 1, len(nodeList)):
+        if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.threshold \
+            and nodeList[i].label == nodeList[j].label:
+          self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
         else:
           self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
