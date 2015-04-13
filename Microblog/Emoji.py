@@ -16,11 +16,11 @@ negativeEmoji = ['[抓狂]', '[挖鼻屎]', '[汗]', '[衰]', '[怒]', '[晕]', 
 
 
 def getEmojiLabel(emoji):
-    if emoji in positiveEmoji:
+    if emoji.encode('utf-8') in positiveEmoji:
         return 1
-    elif emoji in neutralEmoji:
+    elif emoji.encode('utf-8') in neutralEmoji:
         return 0
-    elif emoji in negativeEmoji:
+    elif emoji.encode('utf-8') in negativeEmoji:
         return -1
     else:
-        return None
+        return 0

@@ -10,10 +10,10 @@ class Feature:
     def __init__(self):
         self.name = "Feature"
         self.values = {}
-        self.threshold = 0.5  # to be tuned
+        self.threshold = 0.2  # to be tuned
         # print "Feature initialized"
 
-    def cosineSim(self, A, B, BOW=False):
+    def cosineSim(self, A, B, BOW=True):
         sum_AB = 0.0
         sum_A2 = 0.0
         sum_B2 = 0.0
@@ -30,6 +30,8 @@ class Feature:
                 sum_AB += A[i] * B[i]
                 sum_A2 += A[i] ** 2
                 sum_B2 += B[i] ** 2
+        sum_A2 = max(1.0, sum_A2)
+        sum_B2 = max(1.0, sum_B2)
         return sum_AB / (math.sqrt(sum_A2) * math.sqrt(sum_B2))
 
     def distance(self, i, j, nodeList):

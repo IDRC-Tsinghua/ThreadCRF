@@ -10,9 +10,7 @@ class Node:
         self.id = data['id']
         self.number = data['number']
         self.name = data['username']
-        self.text = data['text']
         self.parent = data['parent']
-        # self.children = data['children']
         self.depth = data['depth']
         self.label = data['label']
 
