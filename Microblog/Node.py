@@ -19,12 +19,22 @@ class Node:
     if 'vector' in data:
       self.vector = data['vector']
     else:
-      self.vector = None
+      self.vector = []
 
     if 'emoji' in data:
       self.emoji = data['emoji']
     else:
-      self.emoji = None
+      self.emoji = []
+
+    if 'mention' in data:
+      self.mention = data['mention']
+    else:
+      self.mention = []
+
+    if 'hashtag' in data:
+      self.hashtag = data['hashtag']
+    else:
+      self.hashtag = []
 
     Node.nodeCount += 1
 
@@ -33,3 +43,9 @@ class Node:
 
   def setEmoji(self, _emoji):
     self.emoji = _emoji
+
+  def setMention(self, _mention):
+    self.mention = _mention
+
+  def setHashTag(self, _hashtag):
+    self.hashtag = _hashtag

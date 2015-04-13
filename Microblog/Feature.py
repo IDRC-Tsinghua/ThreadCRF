@@ -49,6 +49,21 @@ class Feature:
 
     return depth + i_ancestor[curNode.number]
 
+  def isAncestor(self, i, j, nodeList):
+    "decide whether i is j's ancestor in the nodelist"
+    curNode = nodeList[j]
+    depth = 1
+    while curNode.number != 0:
+      if curNode.parent == i:
+        return True, depth
+      else:
+        curNode = nodeList[curNode.parent]
+        depth += 1
+    if i == 0:
+      return True, depth
+    else:
+      return False, -1
+
   def extract(self, nodeList):
     return
 
@@ -266,6 +281,47 @@ class Similarity(EdgeFeature):
         if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.threshold \
             and nodeList[i].label == nodeList[j].label:
           self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
+        else:
+          self.values[(nodeList[i].number, nodeList[j].number)] = 0
+
+
+class SentimentProp(EdgeFeature):
+  "test the sentiment propagation relation in routes"
+
+  def __init__(self):
+    EdgeFeature.__init__(self)
+    self.name = "EdgeFeature: SentimentProp(yi,yj)"
+    print "EdgeFeature SentimentProp(yi,yj) initialized"
+
+  def extract(self, nodeList):
+    assert len(nodeList) > 1
+    for i in range(0, len(nodeList)):
+      for j in range(i + 1, len(nodeList)):
+        isAnc, distance = self.isAncestor(i, j, nodeList)
+        if isAnc:
+          self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - distance)
+        else:
+          self.values[(nodeList[i].number, nodeList[j].number)] = 0
+
+
+class AuthorRef(EdgeFeature):
+  "test whether the node's author is mentioned by its ancestor and they have the same label"
+
+  def __init__(self):
+    EdgeFeature.__init__(self)
+    self.name = "EdgeFeature: AuthorRef(yi,yj)"
+    print "EdgeFeature AuthorRef(yi,yj) initialized"
+
+  def extract(self, nodeList):
+    assert len(nodeList) > 1
+    for i in range(0, len(nodeList)):
+      for j in range(i + 1, len(nodeList)):
+        if nodeList[i].label == nodeList[j].label and nodeList[j].name in nodeList[i].mention:
+          isAnc, distance = self.isAncestor(i, j, nodeList)
+          if isAnc:
+            self.values[(nodeList[i].number, nodeList[j].number)] = 1
+          else:
+            self.values[(nodeList[i].number, nodeList[j].number)] = 0
         else:
           self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
