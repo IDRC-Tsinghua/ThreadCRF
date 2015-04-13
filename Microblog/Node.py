@@ -4,48 +4,48 @@ __author__ = 'wangyc'
 
 
 class Node:
-  nodeCount = 0
+    nodeCount = 0
 
-  def __init__(self, data):
-    self.id = data['id']
-    self.number = data['number']
-    self.name = data['username']
-    self.text = data['text']
-    self.parent = data['parent']
-    self.children = data['children']
-    self.depth = data['depth']
-    self.label = data['label']
+    def __init__(self, data):
+        self.id = data['id']
+        self.number = data['number']
+        self.name = data['username']
+        self.text = data['text']
+        self.parent = data['parent']
+        # self.children = data['children']
+        self.depth = data['depth']
+        self.label = data['label']
 
-    if 'vector' in data:
-      self.vector = data['vector']
-    else:
-      self.vector = []
+        if 'vector' in data:
+            self.vector = data['vector']
+        else:
+            self.vector = []
 
-    if 'emoji' in data:
-      self.emoji = data['emoji']
-    else:
-      self.emoji = []
+        if 'emoji' in data:
+            self.emoji = data['emoji']
+        else:
+            self.emoji = []
 
-    if 'mention' in data:
-      self.mention = data['mention']
-    else:
-      self.mention = []
+        if 'mention' in data:
+            self.mention = data['mention']
+        else:
+            self.mention = []
 
-    if 'hashtag' in data:
-      self.hashtag = data['hashtag']
-    else:
-      self.hashtag = []
+        if 'hashtag' in data:
+            self.hashtag = data['hashtag']
+        else:
+            self.hashtag = []
 
-    Node.nodeCount += 1
+        Node.nodeCount += 1
 
-  def setVector(self, _vector):
-    self.vector = _vector
+    def setVector(self, _vector):
+        self.vector = _vector
 
-  def setEmoji(self, _emoji):
-    self.emoji = _emoji
+    def setEmoji(self, _emoji):
+        self.emoji = _emoji
 
-  def setMention(self, _mention):
-    self.mention = _mention
+    def setMention(self, _mention):
+        self.mention = _mention
 
-  def setHashTag(self, _hashtag):
-    self.hashtag = _hashtag
+    def setHashTag(self, _hashtag):
+        self.hashtag = _hashtag

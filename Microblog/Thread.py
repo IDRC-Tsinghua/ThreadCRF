@@ -7,48 +7,52 @@ from Feature import *
 
 
 class Thread:
-  threadCount = 0
+    threadCount = 0
 
-  def __init__(self, _id, nodeList):
-    assert len(nodeList) > 0
-    self.id = _id
-    self.nodes = nodeList
-    self.nodeCount = len(self.nodes)
-    self.nodeFeatures = {}
-    self.edgeFeatures = {}
-    Thread.threadCount += 1
+    def __init__(self, _id, nodeList):
+        assert len(nodeList) > 0
+        self.id = _id
+        self.nodes = nodeList
+        self.nodeCount = len(self.nodes)
+        self.nodeFeatures = []
+        self.edgeFeatures = []
+        Thread.threadCount += 1
 
-  def setNodeFeatures(self, featureNames=[]):
-    for feature in featureNames:
-      nodeFeature = newFeature(feature)
-      self.nodeFeatures[feature] = nodeFeature
+    def setNodeFeatures(self, featureNames=[]):
+        for feature in featureNames:
+            self.nodeFeatures.append(newFeature(feature))
 
-  def setEdgeFeatures(self, featureNames=[]):
-    for feature in featureNames:
-      edgeFeature = newFeature(feature)
-      self.edgeFeatures[feature] = edgeFeature
+    def setEdgeFeatures(self, featureNames=[]):
+        for feature in featureNames:
+            self.edgeFeatures.append(newFeature(feature))
 
-  def extractNodeFeatures(self):
-    for nodeFeature in self.nodeFeatures:
-      nodeFeature.extract(self.nodes)
+    def extractNodeFeatures(self):
+        for nodeFeature in self.nodeFeatures:
+            nodeFeature.extract(self.nodes)
 
-  def extractEdgeFeatures(self):
-    for edgeFeature in self.edgeFeatures:
-      edgeFeature.extract(self.nodes)
+    def extractEdgeFeatures(self):
+        for edgeFeature in self.edgeFeatures:
+            edgeFeature.extract(self.nodes)
 
-  def extractFeatures(self, nodeFeatureNames=[], edgeFeatureNames=[]):
-    if len(nodeFeatureNames) > 0:
-      self.setNodeFeatures(nodeFeatureNames)
-    if len(edgeFeatureNames) > 0:
-      self.setEdgeFeatures(edgeFeatureNames)
-    self.extractNodeFeatures()
-    self.extractEdgeFeatures()
+    def extractFeatures(self, nodeFeatureNames=[], edgeFeatureNames=[]):
+        if len(nodeFeatureNames) > 0:
+            self.setNodeFeatures(nodeFeatureNames)
+        if len(edgeFeatureNames) > 0:
+            self.setEdgeFeatures(edgeFeatureNames)
+        self.extractNodeFeatures()
+        self.extractEdgeFeatures()
 
 
 if __name__ == '__main__':
-  data = {'id': 123456, 'number': 0, 'text': '哈哈', 'parent': -1,
-          'children': [1, 2], 'depth': 0, 'label': 1, 'username': 'wangyc'}
-  root = Node(data)
-  thread = Thread(123456, [root])
-  thread.setNodeFeatures(['Root'])
-  thread.setEdgeFeatures(['SameAuthor'])
+    data = {'id': 123456, 'number': 0, 'text': '哈哈', 'parent': -1,
+            'children': [1, 2], 'depth': 0, 'label': 1, 'username': 'wangyc'}
+    root = Node(data)
+    thread = Thread(123456, [root])
+    thread.setNodeFeatures(['Root', 'Parent', 'ParentSim', 'ParentDiff', 'SelfRepost', 'NodeEmoji'])
+    thread.setEdgeFeatures(
+        ['SameAuthor', 'Sibling', 'Similarity', 'SentimentProp', 'AuthorRef', 'HashTag', 'SameEmoji'])
+    thread.extractFeatures()
+    for nodeFeature in thread.nodeFeatures:
+        print nodeFeature.name, nodeFeature.values
+    for edgeFeature in thread.edgeFeatures:
+        print edgeFeature.name, edgeFeature.values
