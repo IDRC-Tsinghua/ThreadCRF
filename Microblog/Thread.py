@@ -4,6 +4,7 @@ __author__ = 'wangyc'
 
 from Node import *
 from Feature import *
+import numpy as np
 
 
 class Thread:
@@ -42,17 +43,39 @@ class Thread:
         self.extractNodeFeatures()
         self.extractEdgeFeatures()
 
+    def getInstance(self):
+        # prepare node_features (n_nodes, n_node_features)
+        n_node_features = len(self.nodeFeatures)
+        n_edge_features = len(self.edgeFeatures)
+        n_nodes = len(self.nodes)
+        node_features = np.zeros([n_node_features, n_nodes])
+        order = 0
+        for feature in self.nodeFeatures:
+            tmp = np.array([feature.values[i] for i in range(n_nodes)])
+            node_features[order] = tmp
+            order += 1
+        node_features = np.transpose(node_features)
+        # prepare edges (n_edges, 2)
+        n_edges = n_nodes * (n_nodes - 1) / 2
+        edges = np.zeros([n_edges, 2], dtype=np.int8)
+        p_edge = 0
+        for i in range(n_nodes):
+            for j in range(i + 1, n_nodes):
+                edges[p_edge] = [i, j]
+                p_edge += 1
+        # prepare edge_features (n_edges, n_edge_features)
+        edge_features = np.zeros([n_edge_features, n_edges])
+        order = 0
+        for feature in self.edgeFeatures:
+            tmp = np.array([feature.values[tuple(edges[i])] for i in range(n_edges)])
+            edge_features[order] = tmp
+            order += 1
+        edge_features = np.transpose(edge_features)
+        return (node_features, edges, edge_features)
 
-if __name__ == '__main__':
-    data = {'id': 123456, 'number': 0, 'text': '哈哈', 'parent': -1,
-            'children': [1, 2], 'depth': 0, 'label': 1, 'username': 'wangyc'}
-    root = Node(data)
-    thread = Thread(123456, [root])
-    thread.setNodeFeatures(['Root', 'Parent', 'ParentSim', 'ParentDiff', 'SelfRepost', 'NodeEmoji'])
-    thread.setEdgeFeatures(
-        ['SameAuthor', 'Sibling', 'Similarity', 'SentimentProp', 'AuthorRef', 'HashTag', 'SameEmoji'])
-    thread.extractFeatures()
-    for nodeFeature in thread.nodeFeatures:
-        print nodeFeature.name, nodeFeature.values
-    for edgeFeature in thread.edgeFeatures:
-        print edgeFeature.name, edgeFeature.values
+    def getLabel(self):
+        n_nodes = len(self.nodes)
+        labels = np.zeros(n_nodes, dtype=np.int8)
+        for i in range(n_nodes):
+            labels[i] = self.nodes[i].label + 1
+        return labels

@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'wangyc'
 
-from pystruct import models
+from pystruct.models import EdgeFeatureGraphCRF
+from pystruct.learners import OneSlackSSVM
 from Microblog.Thread import Thread
 from Microblog.Node import Node
 import json
+
 
 if __name__ == '__main__':
     fin_data = open('../sample.txt', 'r')
@@ -28,4 +30,12 @@ if __name__ == '__main__':
     for edgeFeature in thread.edgeFeatures:
         print edgeFeature.name, edgeFeature.values
 
-    model = models.EdgeFeatureGraphCRF()
+    X = thread.getInstance()
+    Y = thread.getLabel()
+    crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(thread.nodeFeatures),
+                              n_edge_features=len(thread.edgeFeatures))
+    ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=1)
+    ssvm.fit([X], [Y])
+    print [Y]
+    print ssvm.predict([X])
+    print ssvm.w
