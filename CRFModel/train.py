@@ -21,16 +21,17 @@ if __name__ == '__main__':
         nodeList.append(node)
         line = fin_data.readline().strip()
     thread = Thread(root.id, nodeList)
-    thread.setNodeFeatures(['Root', 'Parent', 'ParentSim', 'ParentDiff', 'SelfRepost', 'NodeEmoji'])
+    thread.setNodeFeatures(['NodeEmoji'])
     thread.setEdgeFeatures(
-        ['SameAuthor', 'Sibling', 'Similarity', 'SentimentProp', 'AuthorRef', 'HashTag', 'SameEmoji'])
+        ['SameAuthor', 'Sibling', 'Similarity', 'Difference', 'SentimentProp',
+         'AuthorRef', 'HashTag', 'SameEmoji', 'FollowRoot'])
     thread.extractFeatures()
     for nodeFeature in thread.nodeFeatures:
         print nodeFeature.name, nodeFeature.values
     for edgeFeature in thread.edgeFeatures:
         print edgeFeature.name, edgeFeature.values
 
-    X = thread.getInstance()
+    X = thread.getInstance(addVec=True)
     Y = thread.getLabel()
     crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(thread.nodeFeatures) + dictLength,
                               n_edge_features=len(thread.edgeFeatures))

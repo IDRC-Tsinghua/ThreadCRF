@@ -44,21 +44,25 @@ class Thread:
         self.extractNodeFeatures()
         self.extractEdgeFeatures()
 
-    def getInstance(self):
+    def getInstance(self, addVec=False):
         n_node_features = len(self.nodeFeatures)
         n_edge_features = len(self.edgeFeatures)
         n_nodes = len(self.nodes)
 
         # prepare node_features (n_nodes, n_node_features)
-        node_features = np.zeros([n_node_features + dictLength, n_nodes])
+        if addVec:
+            node_features = np.zeros([n_node_features + dictLength, n_nodes])
+        else:
+            node_features = np.zeros([n_node_features, n_nodes])
         order = 0
         for feature in self.nodeFeatures:
             tmp = np.array([feature.values[i] for i in range(n_nodes)])
             node_features[order] = tmp
             order += 1
         node_features = np.transpose(node_features)
-        for i in range(n_nodes):
-            node_features[i][-dictLength:] = self.nodes[i].toVector(dictLength)
+        if addVec:
+            for i in range(n_nodes):
+                node_features[i][-dictLength:] = self.nodes[i].toVector(dictLength)
 
         # prepare edges (n_edges, 2)
         n_edges = n_nodes * (n_nodes - 1) / 2
