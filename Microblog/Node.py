@@ -17,7 +17,7 @@ class Node:
         if 'vector' in data:
             self.vector = data['vector']
         else:
-            self.vector = []
+            self.vector = {}
 
         if 'emoji' in data:
             self.emoji = data['emoji']
@@ -47,3 +47,9 @@ class Node:
 
     def setHashTag(self, _hashtag):
         self.hashtag = _hashtag
+
+    def toVector(self, length):
+        vec = [0 for i in range(length)]
+        for index in self.vector:
+            vec[int(index) - 1] = self.vector[index]
+        return vec

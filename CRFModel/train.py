@@ -4,7 +4,7 @@ __author__ = 'wangyc'
 
 from pystruct.models import EdgeFeatureGraphCRF
 from pystruct.learners import OneSlackSSVM
-from Microblog.Thread import Thread
+from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
 import json
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     X = thread.getInstance()
     Y = thread.getLabel()
-    crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(thread.nodeFeatures),
+    crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(thread.nodeFeatures) + dictLength,
                               n_edge_features=len(thread.edgeFeatures))
     ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=1)
     ssvm.fit([X], [Y])
