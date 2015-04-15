@@ -6,7 +6,7 @@ from Node import *
 from Feature import *
 import numpy as np
 
-dictLength = 137  # the length of dictionary
+dictLength = 2379  # the length of dictionary
 
 class Thread:
     threadCount = 0
@@ -16,15 +16,19 @@ class Thread:
         self.id = _id
         self.nodes = nodeList
         self.nodeCount = len(self.nodes)
+        self.nodeFeatureNames = []
+        self.edgeFeatureNames = []
         self.nodeFeatures = []
         self.edgeFeatures = []
         Thread.threadCount += 1
 
     def setNodeFeatures(self, featureNames=[]):
+        self.nodeFeatureNames = featureNames
         for feature in featureNames:
             self.nodeFeatures.append(newFeature(feature))
 
     def setEdgeFeatures(self, featureNames=[]):
+        self.edgeFeatureNames = featureNames
         for feature in featureNames:
             self.edgeFeatures.append(newFeature(feature))
 
@@ -47,7 +51,7 @@ class Thread:
     def getInstance(self, addVec=False):
         n_node_features = len(self.nodeFeatures)
         n_edge_features = len(self.edgeFeatures)
-        n_nodes = len(self.nodes)
+        n_nodes = self.nodeCount
 
         # prepare node_features (n_nodes, n_node_features)
         if addVec:

@@ -15,7 +15,7 @@ class Inferencer:
 
     def computePotentials(self, thread, y):
         sum = 0.0
-        n_nodes = len(thread.nodes)
+        n_nodes = thread.nodeCount
         assert n_nodes == len(y)
 
         for i in range(len(y)):

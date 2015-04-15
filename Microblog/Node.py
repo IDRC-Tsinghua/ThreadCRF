@@ -7,12 +7,12 @@ class Node:
     nodeCount = 0
 
     def __init__(self, data):
-        self.id = data['id']
-        self.number = data['number']
-        self.name = data['username']
-        self.parent = data['parent']
-        self.depth = data['depth']
-        self.label = data['label'] + 1
+        self.id = int(data['id'])
+        self.number = int(data['number'])
+        self.name = data['name']
+        self.parent = int(data['parent'])
+        self.depth = int(data['depth'])
+        self.label = int(data['label']) + 1
 
         if 'vector' in data:
             self.vector = {}
