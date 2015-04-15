@@ -6,6 +6,7 @@ from pystruct.models import EdgeFeatureGraphCRF
 from pystruct.learners import OneSlackSSVM
 from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
+from Weights import Weight
 import json
 
 
@@ -20,12 +21,15 @@ if __name__ == '__main__':
         node = Node(json.loads(line))
         nodeList.append(node)
         line = fin_data.readline().strip()
+
     thread = Thread(root.id, nodeList)
-    thread.setNodeFeatures(['NodeEmoji'])
-    thread.setEdgeFeatures(
-        ['SameAuthor', 'Sibling', 'Similarity', 'Difference', 'SentimentProp',
-         'AuthorRef', 'HashTag', 'SameEmoji', 'FollowRoot'])
+    node_features = ['NodeEmoji']
+    thread.setNodeFeatures(node_features)
+    edge_features = ['SameAuthor', 'Sibling', 'Similarity', 'SentimentProp',
+                     'AuthorRef', 'HashTag', 'SameEmoji', 'FollowRoot']
+    thread.setEdgeFeatures(edge_features)
     thread.extractFeatures()
+
     for nodeFeature in thread.nodeFeatures:
         print nodeFeature.name, nodeFeature.values
     for edgeFeature in thread.edgeFeatures:
@@ -40,3 +44,7 @@ if __name__ == '__main__':
     print [Y]
     print ssvm.predict([X])
     print ssvm.w
+    w = Weight(ssvm.w, node_features, edge_features, dictLength)
+    print w.w_node
+    print w.w_dict
+    print w.w_edge

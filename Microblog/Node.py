@@ -12,10 +12,12 @@ class Node:
         self.name = data['username']
         self.parent = data['parent']
         self.depth = data['depth']
-        self.label = data['label']
+        self.label = data['label'] + 1
 
         if 'vector' in data:
-            self.vector = data['vector']
+            self.vector = {}
+            for pair in data['vector']:
+                self.vector[pair[0]] = pair[1]
         else:
             self.vector = {}
 
@@ -51,5 +53,6 @@ class Node:
     def toVector(self, length):
         vec = [0 for i in range(length)]
         for index in self.vector:
-            vec[int(index) - 1] = self.vector[index]
+            assert index - 1 < length
+            vec[index - 1] = self.vector[index]
         return vec

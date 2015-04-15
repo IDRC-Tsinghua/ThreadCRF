@@ -10,7 +10,8 @@ class Feature:
     def __init__(self):
         self.name = "Feature"
         self.values = {}
-        self.threshold = 0.2  # to be tuned
+        self.sim_threshold = 0.1  # to be tuned
+        self.diff_threshold = 0.08  # to be tuned
         # print "Feature initialized"
 
     def cosineSim(self, A, B, BOW=True):
@@ -99,7 +100,7 @@ class Root(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: Root(yi)"
+        self.name = "Root(yi)"
         # print "NodeFeature Root(yi) initialized"
 
     def extract(self, nodeList):
@@ -120,7 +121,7 @@ class Parent(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: Parent(yi)"
+        self.name = "Parent(yi)"
         # print "NodeFeature Parent(yi) initialized"
 
     def extract(self, nodeList):
@@ -141,7 +142,7 @@ class ParentSim(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: ParentSim(yi)"
+        self.name = "ParentSim(yi)"
         # print "NodeFeature ParentSim(yi) initialized"
 
     def extract(self, nodeList):
@@ -151,7 +152,7 @@ class ParentSim(NodeFeature):
         if len(nodeList) == 1:
             return
         for node in nodeList[1:]:
-            if self.cosineSim(node.vector, nodeList[node.parent].vector) >= self.threshold \
+            if self.cosineSim(node.vector, nodeList[node.parent].vector) >= self.sim_threshold \
                     and node.label == nodeList[node.parent].label:
                 self.values[node.number] = 1
             else:
@@ -163,7 +164,7 @@ class ParentDiff(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: ParentDiff(yi)"
+        self.name = "ParentDiff(yi)"
         # print "NodeFeature ParentDiff(yi) initialized"
 
     def extract(self, nodeList):
@@ -173,7 +174,7 @@ class ParentDiff(NodeFeature):
         if len(nodeList) == 1:
             return
         for node in nodeList[1:]:
-            if self.cosineSim(node.vector, nodeList[node.parent].vector) < self.threshold \
+            if self.cosineSim(node.vector, nodeList[node.parent].vector) < self.sim_threshold \
                     and node.label != nodeList[node.parent].label:
                 self.values[node.number] = 1
             else:
@@ -185,7 +186,7 @@ class SelfRepost(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: SelfRepost(yi)"
+        self.name = "SelfRepost(yi)"
         # print "NodeFeature SelfRepost(yi) initialized"
 
     def extract(self, nodeList):
@@ -207,7 +208,7 @@ class NodeEmoji(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeFeature: NodeEmoji(yi)"
+        self.name = "NodeEmoji(yi)"
         # print "NodeFeature NodeEmoji(yi) initialized"
 
     def extract(self, nodeList):
@@ -220,11 +221,11 @@ class NodeEmoji(NodeFeature):
                 for emoji in allEmoji:
                     labelSum += getEmojiLabel(emoji)
                 if labelSum == 0:
-                    emojiLabel = 0
-                elif labelSum > 0:
                     emojiLabel = 1
+                elif labelSum > 0:
+                    emojiLabel = 2
                 else:
-                    emojiLabel = -1
+                    emojiLabel = 0
                 if node.label == emojiLabel:
                     self.values[node.number] = 1
                 else:
@@ -238,7 +239,7 @@ class SameAuthor(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: SameAuthor(yi,yj)"
+        self.name = "SameAuthor(yi,yj)"
         # print "EdgeFeature SameAuthor(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -256,7 +257,7 @@ class Sibling(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: Sibling(yi,yj)"
+        self.name = "Sibling(yi,yj)"
         # print "EdgeFeature Sibling(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -274,14 +275,14 @@ class Similarity(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: Similarity(yi,yj)"
+        self.name = "Similarity(yi,yj)"
         # print "EdgeFeature Similarity(yi,yj) initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.threshold \
+                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.sim_threshold \
                         and nodeList[i].label == nodeList[j].label:
                     self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
@@ -293,14 +294,14 @@ class Difference(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: Difference(yi,yj)"
+        self.name = "Difference(yi,yj)"
         # print "EdgeFeature Difference(yi,yj) initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) < self.threshold \
+                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) < self.diff_threshold \
                         and nodeList[i].label != nodeList[j].label:
                     self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
@@ -312,13 +313,16 @@ class SentimentProp(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: SentimentProp(yi,yj)"
+        self.name = "SentimentProp(yi,yj)"
         # print "EdgeFeature SentimentProp(yi,yj) initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
+                if nodeList[i].label != nodeList[j].label:
+                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    continue
                 isAnc, distance = self.isAncestor(i, j, nodeList)
                 if isAnc:
                     self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - distance)
@@ -331,7 +335,7 @@ class AuthorRef(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: AuthorRef(yi,yj)"
+        self.name = "AuthorRef(yi,yj)"
         # print "EdgeFeature AuthorRef(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -353,7 +357,7 @@ class HashTag(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: HashTag(yi,yj)"
+        self.name = "HashTag(yi,yj)"
         # print "EdgeFeature HashTag(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -372,7 +376,7 @@ class SameEmoji(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: SameEmoji(yi,yj)"
+        self.name = "SameEmoji(yi,yj)"
         # print "EdgeFeature SameEmoji(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -391,7 +395,7 @@ class FollowRoot(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "EdgeFeature: FollowRoot(yi,yj)"
+        self.name = "FollowRoot(yi,yj)"
         # print "EdgeFeature FollowRoot(y0,yj) initialized"
 
     def extract(self, nodeList):

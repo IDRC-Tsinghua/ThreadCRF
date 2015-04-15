@@ -87,5 +87,5 @@ class Thread:
         n_nodes = len(self.nodes)
         labels = np.zeros(n_nodes, dtype=np.int8)
         for i in range(n_nodes):
-            labels[i] = self.nodes[i].label + 1
+            labels[i] = self.nodes[i].label
         return labels
