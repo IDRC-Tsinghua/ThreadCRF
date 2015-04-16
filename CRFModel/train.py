@@ -8,6 +8,7 @@ from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
 from Weights import Weight
 from Inference.SequentialInferencer import SequentialInferencer
+from Inference.IntegralInferencer import IntegralInferencer
 import json, os
 
 data_path = '../data/res/'
@@ -51,15 +52,16 @@ if __name__ == '__main__':
                               n_edge_features=len(edge_features))
     ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=1)
     ssvm.fit(X, Y)
-    preY = ssvm.predict(X)
     w = Weight(ssvm.w, node_features, edge_features, dictLength)
     print w.w_node
     print w.w_dict
     print w.w_edge
 
     SeqInf = SequentialInferencer(w)
+    IntInf = IntegralInferencer(w)
     for i in range(len(Y)):
         print list(Y[i])
         print SeqInf.predict(threads[i])
-        print list(preY[i])
+        # print IntInf.predict(threads[i], list(Y[i]))
+        print list(crf.inference(X[i], ssvm.w))
         print "--------------------------------------"

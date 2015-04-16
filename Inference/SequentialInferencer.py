@@ -10,21 +10,16 @@ class SequentialInferencer(Inferencer):
     "predict labels of a thread sequentially from root to leaves"
 
     def __init__(self, weight):
+        Inferencer.__init__(self, weight)
         self.name = "SequentialInferencer"
-        self.w = weight
-
-    def predictRoot(self, root, node_features):
-        single = Thread(root.id, [root])
-        single.setNodeFeatures(node_features)
-        single.extractNodeFeatures()
 
     def predict(self, thread):
         assert thread.nodeCount > 0
         y = [-1] * thread.nodeCount
         root = thread.nodes[0]
-        y[0] = root.label
+        # y[0] = root.label
 
-        for i in range(1, thread.nodeCount):
+        for i in range(0, thread.nodeCount):
             partThread = Thread(root.id, thread.nodes[:i + 1])
             partThread.setNodeFeatures(thread.nodeFeatureNames)
             if i != 0:
