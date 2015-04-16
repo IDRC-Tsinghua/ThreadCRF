@@ -7,6 +7,7 @@ from pystruct.learners import OneSlackSSVM
 from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
 from Weights import Weight
+from Inference.SequentialInferencer import SequentialInferencer
 import json, os
 
 data_path = '../data/res/'
@@ -18,7 +19,8 @@ if __name__ == '__main__':
     files = os.listdir(data_path)
     X = []
     Y = []
-    for file in files:
+    threads = []
+    for file in files[0:10]:
         print file
         fin_data = open(data_path + file, 'r')
         nodeList = []
@@ -41,6 +43,7 @@ if __name__ == '__main__':
             # for edgeFeature in thread.edgeFeatures:
             #print edgeFeature.name, edgeFeature.values
 
+        threads.append(thread)
         X.append(thread.getInstance(addVec=True))
         Y.append(thread.getLabel())
 
@@ -48,11 +51,15 @@ if __name__ == '__main__':
                               n_edge_features=len(edge_features))
     ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=1)
     ssvm.fit(X, Y)
-    for i in range(len(Y)):
-        print Y[i]
-        print ssvm.predict(X[i])
-
+    preY = ssvm.predict(X)
     w = Weight(ssvm.w, node_features, edge_features, dictLength)
     print w.w_node
     print w.w_dict
     print w.w_edge
+
+    SeqInf = SequentialInferencer(w)
+    for i in range(len(Y)):
+        print list(Y[i])
+        print SeqInf.predict(threads[i])
+        print list(preY[i])
+        print "--------------------------------------"

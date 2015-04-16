@@ -12,13 +12,13 @@ class Weight:
         pw = 0
         for feature in node_features:
             self.w_node[feature] = {}
-        for i in range(1, dict_len + 1):
+        for i in range(0, dict_len):
             self.w_dict[i] = {}
         for state in range(0, 3):
             for feature in node_features:
                 self.w_node[feature][state] = w_array[pw]
                 pw += 1
-            for i in range(1, dict_len + 1):
+            for i in range(0, dict_len):
                 self.w_dict[i][state] = w_array[pw]
                 pw += 1
         self.w_edge = {}

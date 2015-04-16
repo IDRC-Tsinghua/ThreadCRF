@@ -100,7 +100,7 @@ class Root(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "Root(yi)"
+        self.name = "Root"
         # print "NodeFeature Root(yi) initialized"
 
     def extract(self, nodeList):
@@ -121,7 +121,7 @@ class Parent(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "Parent(yi)"
+        self.name = "Parent"
         # print "NodeFeature Parent(yi) initialized"
 
     def extract(self, nodeList):
@@ -142,7 +142,7 @@ class ParentSim(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "ParentSim(yi)"
+        self.name = "ParentSim"
         # print "NodeFeature ParentSim(yi) initialized"
 
     def extract(self, nodeList):
@@ -164,7 +164,7 @@ class ParentDiff(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "ParentDiff(yi)"
+        self.name = "ParentDiff"
         # print "NodeFeature ParentDiff(yi) initialized"
 
     def extract(self, nodeList):
@@ -186,7 +186,7 @@ class SelfRepost(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "SelfRepost(yi)"
+        self.name = "SelfRepost"
         # print "NodeFeature SelfRepost(yi) initialized"
 
     def extract(self, nodeList):
@@ -208,7 +208,7 @@ class NodeEmoji(NodeFeature):
 
     def __init__(self):
         NodeFeature.__init__(self)
-        self.name = "NodeEmoji(yi)"
+        self.name = "NodeEmoji"
         # print "NodeFeature NodeEmoji(yi) initialized"
 
     def extract(self, nodeList):
@@ -239,7 +239,7 @@ class SameAuthor(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "SameAuthor(yi,yj)"
+        self.name = "SameAuthor"
         # print "EdgeFeature SameAuthor(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -257,7 +257,7 @@ class Sibling(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "Sibling(yi,yj)"
+        self.name = "Sibling"
         # print "EdgeFeature Sibling(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -275,7 +275,7 @@ class Similarity(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "Similarity(yi,yj)"
+        self.name = "Similarity"
         # print "EdgeFeature Similarity(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -294,7 +294,7 @@ class Difference(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "Difference(yi,yj)"
+        self.name = "Difference"
         # print "EdgeFeature Difference(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -313,7 +313,7 @@ class SentimentProp(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "SentimentProp(yi,yj)"
+        self.name = "SentimentProp"
         # print "EdgeFeature SentimentProp(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -335,7 +335,7 @@ class AuthorRef(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "AuthorRef(yi,yj)"
+        self.name = "AuthorRef"
         # print "EdgeFeature AuthorRef(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -357,7 +357,7 @@ class HashTag(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "HashTag(yi,yj)"
+        self.name = "HashTag"
         # print "EdgeFeature HashTag(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -376,7 +376,7 @@ class SameEmoji(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "SameEmoji(yi,yj)"
+        self.name = "SameEmoji"
         # print "EdgeFeature SameEmoji(yi,yj) initialized"
 
     def extract(self, nodeList):
@@ -395,7 +395,7 @@ class FollowRoot(EdgeFeature):
 
     def __init__(self):
         EdgeFeature.__init__(self)
-        self.name = "FollowRoot(yi,yj)"
+        self.name = "FollowRoot"
         # print "EdgeFeature FollowRoot(y0,yj) initialized"
 
     def extract(self, nodeList):

@@ -24,7 +24,7 @@ class Inferencer:
 
         for feature in thread.nodeFeatures:
             for node in thread.nodes:
-                sum += feature.values[node.number] * self.w.w_node[feature][node.label]
+                sum += feature.values[node.number] * self.w.w_node[feature.name][node.label]
 
         for node in thread.nodes:
             for i in node.vector:
@@ -33,6 +33,6 @@ class Inferencer:
         for i in range(0, n_nodes):
             for j in range(i + 1, n_nodes):
                 for feature in thread.edgeFeatures:
-                    sum += feature.values[(i, j)] * self.w.w_edge[feature][(y[i], y[j])]
+                    sum += feature.values[(i, j)] * self.w.w_edge[feature.name][(y[i], y[j])]
 
         return sum
