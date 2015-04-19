@@ -11,7 +11,7 @@ class Feature:
         self.name = "Feature"
         self.values = {}
         self.sim_threshold = 0.1  # to be tuned
-        self.diff_threshold = 0.08  # to be tuned
+        self.diff_threshold = 0  # to be tuned
         # print "Feature initialized"
 
     def cosineSim(self, A, B, BOW=True):
@@ -204,106 +204,96 @@ class SelfRepost(NodeFeature):
 
 
 class NodeEmoji(NodeFeature):
-    "test whether this node's text and its possible emoji have the same label"
 
     def __init__(self):
         NodeFeature.__init__(self)
         self.name = "NodeEmoji"
-        # print "NodeFeature NodeEmoji(yi) initialized"
+        # print "NodeFeature NodeEmoji initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 0
         for node in nodeList:
-            # data['emoji'] is defined as a list of all emojis in the record
+            self.values[node.number] = 0
             if node.emoji:
                 allEmoji = set(node.emoji)
                 labelSum = 0
                 for emoji in allEmoji:
                     labelSum += getEmojiLabel(emoji)
                 if labelSum == 0:
-                    emojiLabel = 1
-                elif labelSum > 0:
-                    emojiLabel = 2
-                else:
                     emojiLabel = 0
-                if node.label == emojiLabel:
-                    self.values[node.number] = 1
+                elif labelSum > 0:
+                    emojiLabel = 1
                 else:
-                    self.values[node.number] = 0
-            else:
-                self.values[node.number] = 0
+                    emojiLabel = -1
+                self.values[node.number] = emojiLabel
 
 
 class SameAuthor(EdgeFeature):
-    "test whether two nodes have the same author and the same label"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "SameAuthor"
-        # print "EdgeFeature SameAuthor(yi,yj) initialized"
+        # print "EdgeFeature SameAuthor initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].name == nodeList[j].name and nodeList[i].label == nodeList[j].label:
+                if nodeList[i].name == nodeList[j].name:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 1
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
 
 class Sibling(EdgeFeature):
-    "test whether two nodes are siblings and have the same label"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "Sibling"
-        # print "EdgeFeature Sibling(yi,yj) initialized"
+        # print "EdgeFeature Sibling initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].parent == nodeList[j].parent and nodeList[i].label == nodeList[j].label:
+                if nodeList[i].parent == nodeList[j].parent:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 1
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
 
 class Similarity(EdgeFeature):
-    "test whether two nodes have similar text and the same label"
+    "test whether two nodes have similar text"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "Similarity"
-        # print "EdgeFeature Similarity(yi,yj) initialized"
+        # print "EdgeFeature Similarity initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.sim_threshold \
-                        and nodeList[i].label == nodeList[j].label:
+                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.sim_threshold:
                     self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
 
 class Difference(EdgeFeature):
-    "test whether two nodes have similar text and the same label"
+    "test whether two nodes have different text"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "Difference"
-        # print "EdgeFeature Difference(yi,yj) initialized"
+        # print "EdgeFeature Difference initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) < self.diff_threshold \
-                        and nodeList[i].label != nodeList[j].label:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
+                if self.cosineSim(nodeList[i].vector, nodeList[j].vector) <= self.diff_threshold:
+                    self.values[(nodeList[i].number, nodeList[j].number)] = -math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
@@ -314,15 +304,12 @@ class SentimentProp(EdgeFeature):
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "SentimentProp"
-        # print "EdgeFeature SentimentProp(yi,yj) initialized"
+        # print "EdgeFeature SentimentProp initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].label != nodeList[j].label:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
-                    continue
                 isAnc, distance = self.isAncestor(i, j, nodeList)
                 if isAnc:
                     self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - distance)
@@ -331,18 +318,18 @@ class SentimentProp(EdgeFeature):
 
 
 class AuthorRef(EdgeFeature):
-    "test whether the node's author is mentioned by its ancestor and they have the same label"
+    "test whether the node's author is mentioned by its ancestor"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "AuthorRef"
-        # print "EdgeFeature AuthorRef(yi,yj) initialized"
+        # print "EdgeFeature AuthorRef initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].label == nodeList[j].label and nodeList[j].name in nodeList[i].mention:
+                if nodeList[j].name in nodeList[i].mention:
                     isAnc, distance = self.isAncestor(i, j, nodeList)
                     if isAnc:
                         self.values[(nodeList[i].number, nodeList[j].number)] = 1
@@ -358,33 +345,31 @@ class HashTag(EdgeFeature):
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "HashTag"
-        # print "EdgeFeature HashTag(yi,yj) initialized"
+        # print "EdgeFeature HashTag initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].label == nodeList[j].label and \
-                                len(set(nodeList[i].hashtag) & set(nodeList[j].hashtag)) > 0:
+                if len(set(nodeList[i].hashtag) & set(nodeList[j].hashtag)) > 0:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 1
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
 
 
 class SameEmoji(EdgeFeature):
-    "test whether two nodes have the same emoji and label"
+    "test whether two nodes have the same emoji"
 
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "SameEmoji"
-        # print "EdgeFeature SameEmoji(yi,yj) initialized"
+        # print "EdgeFeature SameEmoji initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].label == nodeList[j].label and \
-                                len(set(nodeList[i].emoji) & set(nodeList[j].emoji)) > 0:
+                if len(set(nodeList[i].emoji) & set(nodeList[j].emoji)) > 0:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 1
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0
@@ -396,14 +381,14 @@ class FollowRoot(EdgeFeature):
     def __init__(self):
         EdgeFeature.__init__(self)
         self.name = "FollowRoot"
-        # print "EdgeFeature FollowRoot(y0,yj) initialized"
+        # print "EdgeFeature FollowRoot initialized"
 
     def extract(self, nodeList):
         assert len(nodeList) > 1
         root = nodeList[0]
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
-                if nodeList[i].number == 0 and nodeList[j].label == root.label:
+                if nodeList[i].number == 0:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 1
                 else:
                     self.values[(nodeList[i].number, nodeList[j].number)] = 0

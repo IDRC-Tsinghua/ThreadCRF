@@ -16,6 +16,7 @@ class SequentialInferencer(Inferencer):
     def predict(self, thread):
         assert thread.nodeCount > 0
         y = [-1] * thread.nodeCount
+        energy = 0
         root = thread.nodes[0]
         # y[0] = root.label
 
@@ -30,5 +31,6 @@ class SequentialInferencer(Inferencer):
                 potentials = self.computePotentials(partThread, y[:i + 1])
                 record[potentials] = cur_y
             y[i] = record[max(record.keys())]
+            energy = max(record.keys())
 
-        return y
+        return y, energy

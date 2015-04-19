@@ -24,9 +24,9 @@ class Weight:
         self.w_edge = {}
         for feature in edge_features:
             self.w_edge[feature] = {}
-        for i in range(0, 3):
-            for j in range(0, 3):
-                for feature in edge_features:
+        for feature in edge_features:
+            for i in range(0, 3):
+                for j in range(0, 3):
                     self.w_edge[feature][(i, j)] = w_array[pw]
                     pw += 1
         assert pw == len(w_array)

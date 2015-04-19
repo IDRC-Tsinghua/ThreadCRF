@@ -6,7 +6,7 @@ from Node import *
 from Feature import *
 import numpy as np
 
-dictLength = 2379  # the length of dictionary
+dictLength = 11839  # the length of dictionary
 
 class Thread:
     threadCount = 0

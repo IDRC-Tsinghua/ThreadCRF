@@ -38,6 +38,6 @@ class IntegralInferencer(Inferencer, Annealer):
             init_state = [1] * thread.nodeCount
         annealer = SimAnnealer(init_state, thread, self)
         annealer.Tmax = 5000
+        annealer.Tmin = 10
         best_state, potentials = annealer.anneal()
-        print -potentials
-        return best_state
+        return best_state, -potentials / 100
