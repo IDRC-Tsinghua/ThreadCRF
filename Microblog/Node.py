@@ -53,6 +53,6 @@ class Node:
     def toVector(self, length):
         vec = [0 for i in range(length)]
         for index in self.vector:
-            assert index - 1 < length
-            vec[index - 1] = self.vector[index]
+            assert index < length
+            vec[index] = self.vector[index]
         return vec

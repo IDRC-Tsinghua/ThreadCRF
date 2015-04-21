@@ -6,20 +6,25 @@ from Node import *
 from Feature import *
 import numpy as np
 
-dictLength = 11839  # the length of dictionary
+dictLength = 11981  # the length of dictionary
 
 class Thread:
     threadCount = 0
 
-    def __init__(self, _id, nodeList):
+    def __init__(self, _id, nodeList, cliqueSize=3):
         assert len(nodeList) > 0
         self.id = _id
         self.nodes = nodeList
         self.nodeCount = len(self.nodes)
+        n_edges = 0
+        for node in nodeList:
+            n_edges += min(cliqueSize - 1, node.depth)
+        self.edgeCount = n_edges
         self.nodeFeatureNames = []
         self.edgeFeatureNames = []
         self.nodeFeatures = []
         self.edgeFeatures = []
+        self.cliqueSize = cliqueSize  # number of nodes in a clique
         Thread.threadCount += 1
 
     def setNodeFeatures(self, featureNames=[]):
@@ -34,11 +39,11 @@ class Thread:
 
     def extractNodeFeatures(self):
         for nodeFeature in self.nodeFeatures:
-            nodeFeature.extract(self.nodes)
+            nodeFeature.extract(self.nodes, self.cliqueSize)
 
     def extractEdgeFeatures(self):
         for edgeFeature in self.edgeFeatures:
-            edgeFeature.extract(self.nodes)
+            edgeFeature.extract(self.nodes, self.cliqueSize)
 
     def extractFeatures(self, nodeFeatureNames=[], edgeFeatureNames=[]):
         if len(nodeFeatureNames) > 0:
@@ -48,10 +53,11 @@ class Thread:
         self.extractNodeFeatures()
         self.extractEdgeFeatures()
 
-    def getInstance(self, addVec=False):
+    def getInstance(self, addVec=False, addEdgeFeature=True):
         n_node_features = len(self.nodeFeatures)
         n_edge_features = len(self.edgeFeatures)
         n_nodes = self.nodeCount
+        n_edges = self.edgeCount
 
         # prepare node_features (n_nodes, n_node_features)
         if addVec:
@@ -69,12 +75,18 @@ class Thread:
                 node_features[i][-dictLength:] = self.nodes[i].toVector(dictLength)
 
         # prepare edges (n_edges, 2)
-        n_edges = n_nodes * (n_nodes - 1) / 2
         edges = np.zeros([n_edges, 2], dtype=np.int8)
         p_edge = 0
-        for i in range(n_nodes):
-            for j in range(i + 1, n_nodes):
-                edges[p_edge] = [i, j]
+        for i in range(1, len(self.nodes)):
+            ancestors = []
+            tmp = self.nodes[i].parent
+            for ans in range(1, self.cliqueSize):
+                ancestors.append(tmp)
+                tmp = self.nodes[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
+                edges[p_edge] = [j, i]
                 p_edge += 1
 
         # prepare edge_features (n_edges, n_edge_features)

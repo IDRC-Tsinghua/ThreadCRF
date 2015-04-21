@@ -68,7 +68,7 @@ class Feature:
         else:
             return False, -1
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         return
 
         # def __del__(self):
@@ -210,7 +210,7 @@ class NodeEmoji(NodeFeature):
         self.name = "NodeEmoji"
         # print "NodeFeature NodeEmoji initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 0
         for node in nodeList:
             self.values[node.number] = 0
@@ -235,14 +235,21 @@ class SameAuthor(EdgeFeature):
         self.name = "SameAuthor"
         # print "EdgeFeature SameAuthor initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+        for i in range(1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if nodeList[i].name == nodeList[j].name:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 1
+                    self.values[(j, i)] = 1
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class Sibling(EdgeFeature):
@@ -252,7 +259,7 @@ class Sibling(EdgeFeature):
         self.name = "Sibling"
         # print "EdgeFeature Sibling initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             for j in range(i + 1, len(nodeList)):
@@ -270,14 +277,21 @@ class Similarity(EdgeFeature):
         self.name = "Similarity"
         # print "EdgeFeature Similarity initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.sim_threshold:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - self.distance(i, j, nodeList))
+                    self.values[(j, i)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class Difference(EdgeFeature):
@@ -288,14 +302,21 @@ class Difference(EdgeFeature):
         self.name = "Difference"
         # print "EdgeFeature Difference initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if self.cosineSim(nodeList[i].vector, nodeList[j].vector) <= self.diff_threshold:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = -math.exp(1 - self.distance(i, j, nodeList))
+                    self.values[(j, i)] = -math.exp(1 - self.distance(i, j, nodeList))
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class SentimentProp(EdgeFeature):
@@ -306,15 +327,22 @@ class SentimentProp(EdgeFeature):
         self.name = "SentimentProp"
         # print "EdgeFeature SentimentProp initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 isAnc, distance = self.isAncestor(i, j, nodeList)
                 if isAnc:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = math.exp(1 - distance)
+                    self.values[(j, i)] = math.exp(1 - distance)
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class AuthorRef(EdgeFeature):
@@ -325,18 +353,25 @@ class AuthorRef(EdgeFeature):
         self.name = "AuthorRef"
         # print "EdgeFeature AuthorRef initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if nodeList[j].name in nodeList[i].mention:
                     isAnc, distance = self.isAncestor(i, j, nodeList)
                     if isAnc:
-                        self.values[(nodeList[i].number, nodeList[j].number)] = 1
+                        self.values[(j, i)] = 1
                     else:
-                        self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                        self.values[(j, i)] = 0
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class HashTag(EdgeFeature):
@@ -347,14 +382,21 @@ class HashTag(EdgeFeature):
         self.name = "HashTag"
         # print "EdgeFeature HashTag initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if len(set(nodeList[i].hashtag) & set(nodeList[j].hashtag)) > 0:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 1
+                    self.values[(j, i)] = 1
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class SameEmoji(EdgeFeature):
@@ -365,14 +407,21 @@ class SameEmoji(EdgeFeature):
         self.name = "SameEmoji"
         # print "EdgeFeature SameEmoji initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
                 if len(set(nodeList[i].emoji) & set(nodeList[j].emoji)) > 0:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 1
+                    self.values[(j, i)] = 1
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 class FollowRoot(EdgeFeature):
@@ -383,15 +432,22 @@ class FollowRoot(EdgeFeature):
         self.name = "FollowRoot"
         # print "EdgeFeature FollowRoot initialized"
 
-    def extract(self, nodeList):
+    def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         root = nodeList[0]
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
-                if nodeList[i].number == 0:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 1
+            ancestors = []
+            tmp = nodeList[i].parent
+            for ans in range(1, clique_size):
+                ancestors.append(tmp)
+                tmp = nodeList[tmp].parent
+                if tmp == -1:
+                    break
+            for j in ancestors:
+                if nodeList[j].number == 0:
+                    self.values[(j, i)] = 1
                 else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+                    self.values[(j, i)] = 0
 
 
 def newFeature(featureName):
