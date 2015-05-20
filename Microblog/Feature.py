@@ -54,17 +54,17 @@ class Feature:
 
         return depth + i_ancestor[curNode.number]
 
-    def isAncestor(self, i, j, nodeList):
-        "decide whether i is j's ancestor in the nodelist"
-        curNode = nodeList[j]
+    def isAncestor(self, j, i, nodeList):
+        "decide whether j is i's ancestor in the nodelist"
+        curNode = nodeList[i]
         depth = 1
         while curNode.number != 0:
-            if curNode.parent == i:
+            if curNode.parent == j:
                 return True, depth
             else:
                 curNode = nodeList[curNode.parent]
                 depth += 1
-        if i == 0:
+        if j == 0:
             return True, depth
         else:
             return False, -1
@@ -339,7 +339,7 @@ class SentimentProp(EdgeFeature):
                 if tmp == -1:
                     break
             for j in ancestors:
-                isAnc, distance = self.isAncestor(i, j, nodeList)
+                isAnc, distance = self.isAncestor(j, i, nodeList)
                 if isAnc:
                     self.values[(j, i)] = math.exp(1 - distance)
                 else:
@@ -365,12 +365,8 @@ class AuthorRef(EdgeFeature):
                 if tmp == -1:
                     break
             for j in ancestors:
-                if nodeList[j].name in nodeList[i].mention:
-                    isAnc, distance = self.isAncestor(i, j, nodeList)
-                    if isAnc:
-                        self.values[(j, i)] = 1
-                    else:
-                        self.values[(j, i)] = 0
+                if nodeList[i].name in nodeList[j].mention:
+                    self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
 
