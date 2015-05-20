@@ -2,87 +2,108 @@
 # -*- coding: utf-8 -*-
 __author__ = 'wangyc'
 
-from pystruct.models import EdgeFeatureGraphCRF, GraphCRF
+from pystruct.models import EdgeFeatureGraphCRF
 from pystruct.learners import OneSlackSSVM
+# import sys
+# sys.path.append("D:/Ubuntu/projects/ThreadCRF")
 from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
-from Weights import Weight
-from Inference.SequentialInferencer import SequentialInferencer
-from Inference.IntegralInferencer import IntegralInferencer
 import json, os
 
-data_path = '../data/res/'
+data_path = '../data/weibo/'
 node_features = ['NodeEmoji']
-edge_features = ['SameAuthor', 'Sibling', 'Similarity', 'SentimentProp', 'Difference',
+edge_features = ['SameAuthor', 'Similarity', 'SentimentProp', 'Difference',
                  'AuthorRef', 'HashTag', 'SameEmoji', 'FollowRoot']
-# edge_features = []
-group = 36
+#group = 36
 
 if __name__ == '__main__':
-    files = os.listdir(data_path)
-    X = []
-    Y = []
-    threads = []
-    for file in files:
-        print file
-        fin_data = open(data_path + file, 'r')
-        nodeList = []
-        line = fin_data.readline().strip()
-        root = Node(json.loads(line))
-        nodeList.append(root)
-        line = fin_data.readline().strip()
-        while line:
-            node = Node(json.loads(line))
-            nodeList.append(node)
+    fold_names = os.listdir(data_path)
+    folds = []
+    for fold_name in fold_names:
+        print fold_name
+        X = []
+        Y = []
+        threads = []
+        files = os.listdir(data_path + fold_name)
+        for file in files:
+            print file
+            fin_data = open(data_path + fold_name + '/' + file, 'r')
+            nodeList = []
+            preID = 0;
             line = fin_data.readline().strip()
-
-        thread = Thread(root.id, nodeList)
-        thread.setNodeFeatures(node_features)
-        thread.setEdgeFeatures(edge_features)
-        thread.extractFeatures()
-
-        for nodeFeature in thread.nodeFeatures:
-            print nodeFeature.name, nodeFeature.values
-            # for edgeFeature in thread.edgeFeatures:
-            #print edgeFeature.name, edgeFeature.values
-
-        threads.append(thread)
-        X.append(thread.getInstance(addVec=True))
-        Y.append(thread.getLabel())
+            while line:
+                node = Node(json.loads(line))
+                if node.id != preID and preID != 0:
+                    thread = Thread(preID, nodeList)
+                    thread.setNodeFeatures(node_features)
+                    thread.setEdgeFeatures(edge_features)
+                    thread.extractFeatures()
+                    for nodeFeature in thread.nodeFeatures:
+                        print nodeFeature.name, nodeFeature.values
+                    threads.append(thread)
+                    X.append(thread.getInstance(addVec=True))
+                    Y.append(thread.getLabel())
+                    nodeList = []
+                nodeList.append(node)
+                preID = node.id
+                line = fin_data.readline().strip()
+        print len(threads)
+        folds.append({'threads': threads, 'X': X, 'Y': Y})
 
     crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(node_features) + dictLength,
-                              n_edge_features=len(edge_features), class_weight=[2.0, 1.0, 1.0])
-    ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=1)
+                              n_edge_features=len(edge_features))
+    ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=2)
 
-    threads = threads[:group * 10]
-    X = X[:group * 10]
-    Y = Y[:group * 10]
     accuracy = 0.0
-    for fold in range(10):
+    total_correct = 0
+    total = 0
+    precision = {0: [0, 0], 1: [0, 0], 2: [0, 0]}
+    recall = {0: [0, 0], 1: [0, 0], 2: [0, 0]}
+    for fold in range(5):
         print 'fold ' + str(fold) + "--------------------------"
-        ssvm.fit(X[:fold * group] + X[(fold + 1) * group:], Y[:fold * group] + Y[(fold + 1) * group:])
-        print 'Train Score: ' + str(
-            ssvm.score(X[:fold * group] + X[(fold + 1) * group:], Y[:fold * group] + Y[(fold + 1) * group:]))
+        X = []
+        Y = []
+        for i in range(5):
+            if i == fold:
+                continue
+            X.extend(folds[i]['X'])
+            Y.extend(folds[i]['Y'])
+        print "Training Size: ", len(X), len(Y)
+        ssvm.fit(X, Y)
+        print 'Train Score: ' + str(ssvm.score(X, Y))
         # w = Weight(ssvm.w, node_features, edge_features, dictLength)
 
-        #SeqInf = SequentialInferencer(w)
-        #IntInf = IntegralInferencer(w)
-        correct = 0
-        total = 0
-        for i in range(group):
-            print "Instance: " + str(fold * group + i)
-            print list(Y[fold * group + i])
-            #predY, potentials = SeqInf.predict(threads[fold*10+i])
-            #print predY, potentials
-            #print IntInf.predict(threads[i], list(Y[i]))
-            infY = crf.inference(X[fold * group + i], ssvm.w)
+        fold_correct = 0
+        fold_total = 0
+        testX = folds[fold]['X']
+        testY = folds[fold]['Y']
+        for i in range(len(testX)):
+            print "Instance: " + str(i)
+            Yi = testY[i]
+            print list(Yi)
+            infY = crf.inference(testX[i], ssvm.w)
             print list(infY)
-            total += len(Y[fold * group + i])
-            for r in range(len(Y[fold * group + i])):
-                if Y[fold * group + i][r] == infY[r]:
-                    correct += 1
-        fold_acc = float(correct) / float(total)
-        accuracy += fold_acc
+            for py in range(len(Yi)):
+                recall[Yi[py]][1] += 1
+                if infY[py] == Yi[py]:
+                    recall[Yi[py]][0] += 1
+            for py in range(len(infY)):
+                precision[infY[py]][1] += 1
+                if infY[py] == Yi[py]:
+                    precision[infY[py]][0] += 1
+            fold_total += len(Yi)
+            for r in range(len(Yi)):
+                if Yi[r] == infY[r]:
+                    fold_correct += 1
+        total_correct += fold_correct
+        total += fold_total
+        fold_acc = float(fold_correct) / float(fold_total)
         print "fold " + str(fold) + ": " + str(fold_acc)
     print "========================================"
-    print "Average Accuracy: " + str(accuracy / 10)
+    print "Average Accuracy: " + str(float(total_correct) / float(total))
+    print precision
+    for label in precision:
+        print label, float(precision[label][0]) / float(precision[label][1])
+    print recall
+    for label in recall:
+        print label, float(recall[label][0]) / float(recall[label][1])

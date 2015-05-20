@@ -7,9 +7,9 @@ class Node:
     nodeCount = 0
 
     def __init__(self, data):
-        self.id = int(data['id'])
-        self.number = int(data['number'])
-        self.name = data['name']
+        self.id = int(data['threadid'])
+        self.number = int(data['docid'])
+        self.name = data['username']
         self.parent = int(data['parent'])
         self.depth = int(data['depth'])
         self.label = int(data['label']) + 1
@@ -52,6 +52,10 @@ class Node:
 
     def toVector(self, length):
         vec = [0 for i in range(length)]
+        """for index in self.vector.keys():
+            if not index in WordMap.keys():
+                continue
+            vec[WordMap[index]] = self.vector[index]"""
         for index in self.vector:
             assert index < length
             vec[index] = self.vector[index]
