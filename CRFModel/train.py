@@ -31,7 +31,7 @@ if __name__ == '__main__':
             print file
             fin_data = open(data_path + fold_name + '/' + file, 'r')
             nodeList = []
-            preID = 0;
+            preID = 0
             line = fin_data.readline().strip()
             while line:
                 node = Node(json.loads(line))
@@ -40,8 +40,6 @@ if __name__ == '__main__':
                     thread.setNodeFeatures(node_features)
                     thread.setEdgeFeatures(edge_features)
                     thread.extractFeatures()
-                    for edgeFeature in thread.edgeFeatures:
-                        print edgeFeature.name, edgeFeature.values
                     threads.append(thread)
                     X.append(thread.getInstance(addVec=True))
                     Y.append(thread.getLabel())
@@ -49,6 +47,13 @@ if __name__ == '__main__':
                 nodeList.append(node)
                 preID = node.id
                 line = fin_data.readline().strip()
+            thread = Thread(preID, nodeList)
+            thread.setNodeFeatures(node_features)
+            thread.setEdgeFeatures(edge_features)
+            thread.extractFeatures()
+            threads.append(thread)
+            X.append(thread.getInstance(addVec=True))
+            Y.append(thread.getLabel())
         print len(threads)
         folds.append({'threads': threads, 'X': X, 'Y': Y})
 
