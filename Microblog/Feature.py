@@ -3,6 +3,7 @@
 __author__ = 'wangyc'
 
 import math
+
 from Emoji import *
 
 
@@ -279,7 +280,7 @@ class Similarity(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -304,7 +305,7 @@ class Difference(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -329,7 +330,7 @@ class SentimentProp(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -355,7 +356,7 @@ class AuthorRef(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -384,7 +385,7 @@ class HashTag(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -409,7 +410,7 @@ class SameEmoji(EdgeFeature):
 
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
@@ -435,7 +436,7 @@ class FollowRoot(EdgeFeature):
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         root = nodeList[0]
-        for i in range(0, len(nodeList)):
+        for i in range(1, len(nodeList)):
             ancestors = []
             tmp = nodeList[i].parent
             for ans in range(1, clique_size):
