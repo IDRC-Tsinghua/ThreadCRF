@@ -290,8 +290,7 @@ class Similarity(EdgeFeature):
                     break
             for j in ancestors:
                 if self.cosineSim(nodeList[i].vector, nodeList[j].vector) >= self.sim_threshold:
-                    # self.values[(j, i)] = math.exp(1 - self.distance(i, j, nodeList))
-                    self.values[(j, i)] = 1
+                    self.values[(j, i)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(j, i)] = 0
 
@@ -316,8 +315,7 @@ class Difference(EdgeFeature):
                     break
             for j in ancestors:
                 if self.cosineSim(nodeList[i].vector, nodeList[j].vector) <= self.diff_threshold:
-                    # self.values[(j, i)] = -math.exp(1 - self.distance(i, j, nodeList))
-                    self.values[(j, i)] = -1
+                    self.values[(j, i)] = -math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(j, i)] = 0
 
