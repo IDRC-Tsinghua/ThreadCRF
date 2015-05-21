@@ -7,7 +7,7 @@ import sys
 from pystruct.models import EdgeFeatureGraphCRF
 from pystruct.learners import OneSlackSSVM
 
-sys.path.append("D:/Ubuntu/projects/ThreadCRF")
+sys.path.append("../")
 from Microblog.Thread import Thread, dictLength
 from Microblog.Node import Node
 import json, os
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         folds.append({'threads': threads, 'X': X, 'Y': Y})
 
     crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(node_features) + dictLength,
-                              n_edge_features=len(edge_features), class_weight={2.0, 1.0, 1.0})
+                              n_edge_features=len(edge_features), class_weight=[2.0, 1.0, 1.0])
     ssvm = OneSlackSSVM(crf, inference_cache=50, C=.1, tol=.1, max_iter=1000, n_jobs=2)
 
     accuracy = 0.0
