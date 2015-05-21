@@ -19,6 +19,8 @@ class Thread:
         n_edges = 0
         for node in nodeList:
             n_edges += min(cliqueSize - 1, node.depth)
+            if node.depth > cliqueSize:
+                n_edges += 1
         self.edgeCount = n_edges
         self.nodeFeatureNames = []
         self.edgeFeatureNames = []
@@ -75,8 +77,7 @@ class Thread:
                 node_features[i][-dictLength:] = self.nodes[i].toVector(dictLength)
 
         # prepare edges (n_edges, 2)
-        edges = np.zeros([n_edges, 2], dtype=np.int8)
-        p_edge = 0
+        edges = []
         for i in range(1, len(self.nodes)):
             ancestors = []
             tmp = self.nodes[i].parent
@@ -86,15 +87,30 @@ class Thread:
                 if tmp == -1:
                     break
             for j in ancestors:
-                edges[p_edge] = [j, i]
-                p_edge += 1
+                edges.append([j, i])
+        for i in range(1, len(self.nodes)):
+            tmp = self.nodes[i].parent
+            if tmp == 0:
+                continue
+            while self.nodes[tmp].parent != 0:
+                tmp = self.nodes[tmp].parent
+            if not [tmp, i] in edges:
+                edges.append([tmp, i])
+        assert len(edges) == n_edges
+        edges = np.array(edges)
 
         # prepare edge_features (n_edges, n_edge_features)
         edge_features = np.zeros([n_edge_features, n_edges])
         order = 0
         for feature in self.edgeFeatures:
-            tmp = np.array([feature.values[tuple(edges[i])] for i in range(n_edges)])
-            edge_features[order] = tmp
+            tmp = [0] * n_edges
+            for i in range(n_edges):
+                if tuple(edges[i]) in feature.values:
+                    tmp[i] = feature.values[tuple(edges[i])]
+                else:
+                    tmp[i] = 0
+
+            edge_features[order] = np.array(tmp, dtype=np.int8)
             order += 1
         edge_features = np.transpose(edge_features)
         return (node_features, edges, edge_features)

@@ -447,5 +447,21 @@ class FollowRoot(EdgeFeature):
                     self.values[(j, i)] = 0
 
 
+class FollowFirst(EdgeFeature):
+    def __init__(self):
+        EdgeFeature.__init__(self)
+        self.name = "FollowFirst"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 1
+        for i in range(1, len(nodeList)):
+            tmp = nodeList[i].parent
+            if tmp == 0:
+                continue
+            while nodeList[tmp].parent != 0:
+                tmp = nodeList[tmp].parent
+            self.values[(tmp, i)] = 1
+
+
 def newFeature(featureName):
     return globals()[featureName]()
