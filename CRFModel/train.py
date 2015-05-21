@@ -86,6 +86,7 @@ if __name__ == '__main__':
         testY = folds[fold]['Y']
         for i in range(len(testX)):
             print "Instance: " + str(i)
+            print folds[fold]['threads'][i].id
             Yi = testY[i]
             print list(Yi)
             infY = crf.inference(testX[i], ssvm.w)

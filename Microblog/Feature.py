@@ -220,13 +220,13 @@ class NodeEmoji(NodeFeature):
                 labelSum = 0
                 for emoji in allEmoji:
                     labelSum += getEmojiLabel(emoji)
-                if labelSum == 0:
+                '''if labelSum == 0:
                     emojiLabel = 0
                 elif labelSum > 0:
                     emojiLabel = 1
                 else:
-                    emojiLabel = -1
-                self.values[node.number] = emojiLabel
+                    emojiLabel = -1'''
+                self.values[node.number] = labelSum
 
 
 class SameAuthor(EdgeFeature):
