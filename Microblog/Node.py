@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'wangyc'
 
+from Emoji import *
 
 class Node:
     nodeCount = 0
@@ -59,4 +60,15 @@ class Node:
         for index in self.vector:
             assert index < length
             vec[index] = self.vector[index]
+        pos = len(positiveEmoji)
+        neu = len(neutralEmoji)
+        neg = len(negativeEmoji)
+        for e in self.emoji:
+            e = e.encode('utf-8')
+            if e in positiveEmoji:
+                vec[length - neg - neu - pos + positiveEmoji.index(e)] += 1
+            elif e in neutralEmoji:
+                vec[length - neg - neu + neutralEmoji.index(e)] += 1
+            elif e in negativeEmoji:
+                vec[length - neg + negativeEmoji.index(e)] += 1
         return vec
