@@ -19,8 +19,6 @@ class Thread:
         n_edges = 0
         for node in nodeList:
             n_edges += min(cliqueSize - 1, node.depth)
-            if node.depth > cliqueSize:
-                n_edges += 1
         self.edgeCount = n_edges
         self.nodeFeatureNames = []
         self.edgeFeatureNames = []
@@ -88,14 +86,6 @@ class Thread:
                     break
             for j in ancestors:
                 edges.append([j, i])
-        for i in range(1, len(self.nodes)):
-            tmp = self.nodes[i].parent
-            if tmp == 0:
-                continue
-            while self.nodes[tmp].parent != 0:
-                tmp = self.nodes[tmp].parent
-            if not [tmp, i] in edges:
-                edges.append([tmp, i])
         assert len(edges) == n_edges
         edges = np.array(edges)
 
