@@ -268,7 +268,6 @@ class Sibling(EdgeFeature):
                 for ci in range(len(chdnList)):
                     for cj in range(ci + 1, len(chdnList)):
                         if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                            self.values[(chdnList[ci], chdnList[cj])] = 0
                             continue
                         if self.cosineSim(nodeList[chdnList[ci]].vector,
                                           nodeList[chdnList[cj]].vector) >= self.sim_threshold \
