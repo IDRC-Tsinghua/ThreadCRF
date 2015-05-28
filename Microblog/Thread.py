@@ -98,7 +98,7 @@ class Thread:
                     for cj in range(ci + 1, len(chdnList)):
                         if chdnList[ci] >= len(self.nodes) or chdnList[cj] >= len(self.nodes):
                             continue
-                        edges.append([ci, cj])
+                        edges.append([chdnList[ci], chdnList[cj]])
         assert len(edges) == n_edges
         edges = np.array(edges)
 
