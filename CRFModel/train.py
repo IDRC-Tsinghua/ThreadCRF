@@ -14,7 +14,7 @@ import json, os
 
 data_path = '../data/weibo/'
 node_features = ['NodeEmoji']
-edge_features = ['Sibling', 'SameAuthor', 'Similarity', 'SentimentProp',
+edge_features = ['SameAuthor', 'Similarity', 'SentimentProp',
                  'AuthorRef', 'HashTag', 'SameEmoji']
 
 if __name__ == '__main__':
