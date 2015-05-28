@@ -117,93 +117,6 @@ class Root(NodeFeature):
                 self.values[node.number] = 0
 
 
-class Parent(NodeFeature):
-    "test whether this node has the same label as its parent"
-
-    def __init__(self):
-        NodeFeature.__init__(self)
-        self.name = "Parent"
-        # print "NodeFeature Parent(yi) initialized"
-
-    def extract(self, nodeList):
-        assert len(nodeList) > 0
-        root = nodeList[0]
-        self.values[root.number] = 0
-        if len(nodeList) == 1:
-            return
-        for node in nodeList[1:]:
-            if node.label == nodeList[node.parent].label:
-                self.values[node.number] = 1
-            else:
-                self.values[node.number] = 0
-
-
-class ParentSim(NodeFeature):
-    "test whether this node and its parent have similar text and the same label"
-
-    def __init__(self):
-        NodeFeature.__init__(self)
-        self.name = "ParentSim"
-        # print "NodeFeature ParentSim(yi) initialized"
-
-    def extract(self, nodeList):
-        assert len(nodeList) > 0
-        root = nodeList[0]
-        self.values[root.number] = 0
-        if len(nodeList) == 1:
-            return
-        for node in nodeList[1:]:
-            if self.cosineSim(node.vector, nodeList[node.parent].vector) >= self.sim_threshold \
-                    and node.label == nodeList[node.parent].label:
-                self.values[node.number] = 1
-            else:
-                self.values[node.number] = 0
-
-
-class ParentDiff(NodeFeature):
-    "test whether this node and its parent have very different text and different label"
-
-    def __init__(self):
-        NodeFeature.__init__(self)
-        self.name = "ParentDiff"
-        # print "NodeFeature ParentDiff(yi) initialized"
-
-    def extract(self, nodeList):
-        assert len(nodeList) > 0
-        root = nodeList[0]
-        self.values[root.number] = 0
-        if len(nodeList) == 1:
-            return
-        for node in nodeList[1:]:
-            if self.cosineSim(node.vector, nodeList[node.parent].vector) < self.sim_threshold \
-                    and node.label != nodeList[node.parent].label:
-                self.values[node.number] = 1
-            else:
-                self.values[node.number] = 0
-
-
-class SelfRepost(NodeFeature):
-    "test whether this node and its parent are by the same author and have the same label"
-
-    def __init__(self):
-        NodeFeature.__init__(self)
-        self.name = "SelfRepost"
-        # print "NodeFeature SelfRepost(yi) initialized"
-
-    def extract(self, nodeList):
-        assert len(nodeList) > 0
-        root = nodeList[0]
-        self.values[root.number] = 0
-        if len(nodeList) == 1:
-            return
-        for node in nodeList[1:]:
-            if node.name == nodeList[node.parent].name \
-                    and node.label == nodeList[node.parent].label:
-                self.values[node.number] = 1
-            else:
-                self.values[node.number] = 0
-
-
 class NodeEmoji(NodeFeature):
 
     def __init__(self):
@@ -251,18 +164,6 @@ class SameAuthor(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
-        for i in range(0, len(nodeList)):
-            chdnList = nodeList[i].children
-            if len(chdnList) <= 1:
-                continue
-            for ci in range(len(chdnList)):
-                for cj in range(ci + 1, len(chdnList)):
-                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                        continue
-                    if nodeList[chdnList[ci]].name == nodeList[chdnList[cj]].name:
-                        self.values[(chdnList[ci], chdnList[cj])] = 1
-                    else:
-                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Sibling(EdgeFeature):
@@ -292,6 +193,95 @@ class Sibling(EdgeFeature):
                         self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
+class SiblingAuthor(EdgeFeature):
+    def __init__(self):
+        EdgeFeature.__init__(self)
+        self.name = "SiblingAuthor"
+        # print "EdgeFeature SiblingAuthor initialized"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 1
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if nodeList[chdnList[ci]].name == nodeList[chdnList[cj]].name:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
+
+
+class SiblingSim(EdgeFeature):
+    def __init__(self):
+        EdgeFeature.__init__(self)
+        self.name = "SiblingSim"
+        # print "EdgeFeature SiblingSim initialized"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 1
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if self.cosineSim(nodeList[chdnList[ci]].vector,
+                                      nodeList[chdnList[cj]].vector) >= self.sim_threshold:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
+
+
+class SiblingHashTag(EdgeFeature):
+    def __init__(self):
+        EdgeFeature.__init__(self)
+        self.name = "SiblingHashTag"
+        # print "EdgeFeature SiblingHashTag initialized"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 1
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
+
+
+class SiblingEmoji(EdgeFeature):
+    def __init__(self):
+        EdgeFeature.__init__(self)
+        self.name = "SiblingEmoji"
+        # print "EdgeFeature SiblingEmoji initialized"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 1
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
+
+
 class Similarity(EdgeFeature):
     "test whether two nodes have similar text"
 
@@ -315,19 +305,6 @@ class Similarity(EdgeFeature):
                     self.values[(j, i)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(j, i)] = 0
-        for i in range(0, len(nodeList)):
-            chdnList = nodeList[i].children
-            if len(chdnList) <= 1:
-                continue
-            for ci in range(len(chdnList)):
-                for cj in range(ci + 1, len(chdnList)):
-                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                        continue
-                    if self.cosineSim(nodeList[chdnList[ci]].vector,
-                                      nodeList[chdnList[cj]].vector) >= self.sim_threshold:
-                        self.values[(chdnList[ci], chdnList[cj])] = math.exp(-1)
-                    else:
-                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Difference(EdgeFeature):
@@ -429,18 +406,6 @@ class HashTag(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
-        for i in range(0, len(nodeList)):
-            chdnList = nodeList[i].children
-            if len(chdnList) <= 1:
-                continue
-            for ci in range(len(chdnList)):
-                for cj in range(ci + 1, len(chdnList)):
-                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                        continue
-                    if len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0:
-                        self.values[(chdnList[ci], chdnList[cj])] = 1
-                    else:
-                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class SameEmoji(EdgeFeature):
@@ -466,18 +431,6 @@ class SameEmoji(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
-        for i in range(0, len(nodeList)):
-            chdnList = nodeList[i].children
-            if len(chdnList) <= 1:
-                continue
-            for ci in range(len(chdnList)):
-                for cj in range(ci + 1, len(chdnList)):
-                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                        continue
-                    if len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0:
-                        self.values[(chdnList[ci], chdnList[cj])] = 1
-                    else:
-                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class FollowRoot(EdgeFeature):
