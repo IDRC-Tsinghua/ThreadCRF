@@ -251,6 +251,18 @@ class SameAuthor(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if nodeList[chdnList[ci]].name == nodeList[chdnList[cj]].name:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Sibling(EdgeFeature):
@@ -264,19 +276,20 @@ class Sibling(EdgeFeature):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
             chdnList = nodeList[i].children
-            if len(chdnList) > 1:
-                for ci in range(len(chdnList)):
-                    for cj in range(ci + 1, len(chdnList)):
-                        if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
-                            continue
-                        if self.cosineSim(nodeList[chdnList[ci]].vector,
-                                          nodeList[chdnList[cj]].vector) >= self.sim_threshold \
-                                or len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0 \
-                                or len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0 \
-                                or nodeList[chdnList[ci]].name == nodeList[chdnList[cj]].name:
-                            self.values[(chdnList[ci], chdnList[cj])] = 1
-                        else:
-                            self.values[(chdnList[ci], chdnList[cj])] = 0
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if self.cosineSim(nodeList[chdnList[ci]].vector,
+                                      nodeList[chdnList[cj]].vector) >= self.sim_threshold \
+                            or len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0 \
+                            or len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0 \
+                            or nodeList[chdnList[ci]].name == nodeList[chdnList[cj]].name:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Similarity(EdgeFeature):
@@ -302,6 +315,19 @@ class Similarity(EdgeFeature):
                     self.values[(j, i)] = math.exp(1 - self.distance(i, j, nodeList))
                 else:
                     self.values[(j, i)] = 0
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if self.cosineSim(nodeList[chdnList[ci]].vector,
+                                      nodeList[chdnList[cj]].vector) >= self.sim_threshold:
+                        self.values[(chdnList[ci], chdnList[cj])] = math.exp(-1)
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Difference(EdgeFeature):
@@ -403,6 +429,18 @@ class HashTag(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class SameEmoji(EdgeFeature):
@@ -428,6 +466,18 @@ class SameEmoji(EdgeFeature):
                     self.values[(j, i)] = 1
                 else:
                     self.values[(j, i)] = 0
+        for i in range(0, len(nodeList)):
+            chdnList = nodeList[i].children
+            if len(chdnList) <= 1:
+                continue
+            for ci in range(len(chdnList)):
+                for cj in range(ci + 1, len(chdnList)):
+                    if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                        continue
+                    if len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0:
+                        self.values[(chdnList[ci], chdnList[cj])] = 1
+                    else:
+                        self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class FollowRoot(EdgeFeature):
