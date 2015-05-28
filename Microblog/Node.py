@@ -15,6 +15,13 @@ class Node:
         self.depth = int(data['depth'])
         self.label = int(data['label']) + 1
 
+        if 'children' in data:
+            self.children = []
+            tmp = data['children'].encode('utf-8')
+            if len(tmp) > 0:
+                for num in tmp.split(','):
+                    self.children.append(int(num))
+
         if 'vector' in data:
             self.vector = {}
             for pair in data['vector']:

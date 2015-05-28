@@ -263,11 +263,20 @@ class Sibling(EdgeFeature):
     def extract(self, nodeList, clique_size):
         assert len(nodeList) > 1
         for i in range(0, len(nodeList)):
-            for j in range(i + 1, len(nodeList)):
-                if nodeList[i].parent == nodeList[j].parent:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 1
-                else:
-                    self.values[(nodeList[i].number, nodeList[j].number)] = 0
+            chdnList = nodeList[i].children
+            if len(chdnList) > 1:
+                for ci in range(len(chdnList)):
+                    for cj in range(ci + 1, len(chdnList)):
+                        if chdnList[ci] >= len(nodeList) or chdnList[cj] >= len(nodeList):
+                            self.values[(chdnList[ci], chdnList[cj])] = 0
+                            continue
+                        if self.cosineSim(nodeList[chdnList[ci]].vector,
+                                          nodeList[chdnList[cj]].vector) >= self.sim_threshold \
+                                or len(set(nodeList[chdnList[ci]].hashtag) & set(nodeList[chdnList[cj]].hashtag)) > 0 \
+                                or len(set(nodeList[chdnList[ci]].emoji) & set(nodeList[chdnList[cj]].emoji)) > 0:
+                            self.values[(chdnList[ci], chdnList[cj])] = 1
+                        else:
+                            self.values[(chdnList[ci], chdnList[cj])] = 0
 
 
 class Similarity(EdgeFeature):
