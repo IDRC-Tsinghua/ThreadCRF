@@ -11,7 +11,7 @@ class Feature:
     def __init__(self):
         self.name = "Feature"
         self.values = {}
-        self.sim_threshold = 0.1  # to be tuned
+        self.sim_threshold = 0.15  # to be tuned
         self.diff_threshold = 0  # to be tuned
         # print "Feature initialized"
 

@@ -15,8 +15,7 @@ import json, os
 data_path = '../data/weibo/'
 node_features = ['NodeEmoji']
 edge_features = ['SameAuthor', 'Similarity', 'SentimentProp',
-                 'AuthorRef', 'HashTag', 'SameEmoji', 'SiblingAuthor',
-                 'SiblingSim', 'SiblingHashTag', 'SiblingEmoji']
+                 'AuthorRef', 'HashTag', 'SameEmoji', 'Sibling']
 
 if __name__ == '__main__':
     fold_names = os.listdir(data_path)
