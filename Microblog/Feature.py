@@ -142,6 +142,20 @@ class NodeEmoji(NodeFeature):
                 self.values[node.number] = labelSum
 
 
+class BlankRepost(NodeFeature):
+    def __init__(self):
+        NodeFeature.__init__(self)
+        self.name = "BlankRepost"
+
+    def extract(self, nodeList, clique_size):
+        assert len(nodeList) > 0
+        for node in nodeList:
+            self.values[node.number] = 0
+            if len(node.vector) == 0 and len(node.emoji) == 0 \
+                    and len(node.hashtag) == 0 and len(node.mention) == 0:
+                self.values[node.number] = 1
+
+
 class SameAuthor(EdgeFeature):
 
     def __init__(self):
