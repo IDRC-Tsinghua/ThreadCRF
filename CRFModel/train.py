@@ -13,7 +13,7 @@ from Microblog.Node import Node
 import json, os
 
 data_path = '../data/weibo/'
-node_features = ['NodeEmoji', 'BlankRepost']
+node_features = ['NodeEmoji']
 edge_features = ['SameAuthor', 'Similarity', 'SentimentProp',
                  'AuthorRef', 'HashTag', 'SameEmoji', 'Sibling']
 
