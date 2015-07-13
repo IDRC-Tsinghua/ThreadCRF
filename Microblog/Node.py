@@ -3,6 +3,7 @@
 __author__ = 'wangyc'
 
 from Emoji import *
+import pdb
 
 class Node:
     nodeCount = 0
