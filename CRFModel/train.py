@@ -13,9 +13,23 @@ from Microblog.Node import Node
 import json, os
 
 data_path = '../data/weibo/'
-node_features = ['NodeEmoji']
-edge_features = ['SameAuthor', 'Similarity', 'SentimentProp',
-                 'AuthorRef', 'HashTag', 'SameEmoji', 'Sibling']
+node_features = ['NodeEmoji',
+                 'Root']
+edge_features = ['SameAuthor',
+                 'Similarity',
+                 'SentimentProp',
+                 'AuthorRef',
+                 'HashTag',
+                 'SameEmoji',
+                 'Sibling',
+                 'SlblingAuthor',
+                 'SiblingSim',
+                 'SiblingHashTag',
+                 'SiblingEmoji',
+                 'Difference',
+                 'FollowRoot',
+                 'FollowFirst'
+]
 
 if __name__ == '__main__':
     fold_names = os.listdir(data_path)
