@@ -20,15 +20,7 @@ edge_features = ['SameAuthor',
                  'AuthorRef',
                  'HashTag',
                  'SameEmoji',
-                 'Sibling',
-                 'SiblingAuthor',
-                 'SiblingSim',
-                 'SiblingHashTag',
-                 'SiblingEmoji',
-                 'Difference',
-                 'FollowRoot',
-                 'FollowFirst'
-]
+                 'Sibling']
 
 if __name__ == '__main__':
     fold_names = os.listdir(data_path)
@@ -80,7 +72,7 @@ if __name__ == '__main__':
 
     crf = EdgeFeatureGraphCRF(n_states=3, n_features=len(node_features) + dictLength,
                               n_edge_features=len(edge_features), class_weight=[1.3, 0.8, 1.0])
-    ssvm = OneSlackSSVM(crf, inference_cache=100, C=100, tol=.001, max_iter=2000, n_jobs=3)
+    ssvm = OneSlackSSVM(crf, inference_cache=100, C=1, tol=.001, max_iter=2000, n_jobs=3)
 
     accuracy = 0.0
     total_correct = 0
