@@ -78,7 +78,7 @@ if __name__ == '__main__':
                               #class_weight=[0.246, 0.394, 0.36])
     ssvm = OneSlackSSVM(crf,
                         inference_cache=100,
-                        C=2,
+                        C=1,
                         tol=.001,
                         max_iter=10000,
                         n_jobs=3)
