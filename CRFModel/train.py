@@ -73,7 +73,8 @@ if __name__ == '__main__':
     crf = EdgeFeatureGraphCRF(n_states=3,
                               n_features=len(node_features) + dictLength,
                               n_edge_features=len(edge_features),
-                              class_weight=[1.3, 0.8, 1.0])
+                              class_weight=[1.3, 0.8, 1.0],
+                              inference_method='max_product')
                               #class_weight=[0.246, 0.394, 0.36])
     ssvm = OneSlackSSVM(crf,
                         inference_cache=100,
