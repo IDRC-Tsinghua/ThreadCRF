@@ -6,7 +6,7 @@ import numpy as np
 
 from Feature import *
 
-dictLength = 4000 + len(positiveEmoji) + len(neutralEmoji) + len(negativeEmoji)  # the length of dictionary
+dictLength = 18438 + len(positiveEmoji) + len(neutralEmoji) + len(negativeEmoji)  # the length of dictionary
 
 class Thread:
     threadCount = 0
