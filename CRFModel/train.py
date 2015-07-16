@@ -74,11 +74,11 @@ if __name__ == '__main__':
                               n_features=len(node_features) + dictLength,
                               n_edge_features=len(edge_features),
                               class_weight=[1.3, 0.8, 1.0],
-                              inference_method='max-product')
+                              inference_method='ad3')
                               #class_weight=[0.246, 0.394, 0.36])
     ssvm = OneSlackSSVM(crf,
                         inference_cache=100,
-                        C=.1,
+                        C=10,
                         tol=.001,
                         max_iter=10000,
                         n_jobs=3)
