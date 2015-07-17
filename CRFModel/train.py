@@ -23,6 +23,12 @@ edge_features = ['SameAuthor',
                  'Sibling']
 
 if __name__ == '__main__':
+
+    # get params
+    param_C = sys.argv[1]
+    param_tol = sys.argv[2]
+    param_max_iter = sys.argv[3]
+
     fold_names = os.listdir(data_path)
     folds = []
     for fold_name in fold_names:
@@ -78,9 +84,9 @@ if __name__ == '__main__':
                               #class_weight=[0.246, 0.394, 0.36])
     ssvm = OneSlackSSVM(crf,
                         inference_cache=100,
-                        C=1,
-                        tol=.001,
-                        max_iter=10000,
+                        C=param_C,
+                        tol=param_tol,
+                        max_iter=param_max_iter,
                         n_jobs=3)
 
     accuracy = 0.0
