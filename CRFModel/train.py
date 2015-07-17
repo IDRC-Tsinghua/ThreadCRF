@@ -25,11 +25,12 @@ edge_features = ['SameAuthor',
 if __name__ == '__main__':
 
     # get params
-    param_C = sys.argv[1]
-    param_tol = sys.argv[2]
-    param_max_iter = sys.argv[3]
+    param_C = float(sys.argv[1])
+    param_tol = float(sys.argv[2])
+    param_max_iter = int(sys.argv[3])
+    weibo_data_file = str(sys.argv[4])
 
-    fold_names = os.listdir(data_path)
+    fold_names = os.listdir(weibo_data_file)
     folds = []
     for fold_name in fold_names:
         print fold_name
