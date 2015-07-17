@@ -28,19 +28,19 @@ if __name__ == '__main__':
     param_C = float(sys.argv[1])
     param_tol = float(sys.argv[2])
     param_max_iter = int(sys.argv[3])
-    weibo_data_file = str(sys.argv[4])
+    data_folder = str(sys.argv[4])
 
-    fold_names = os.listdir(weibo_data_file)
+    fold_names = os.listdir(data_folder)
     folds = []
     for fold_name in fold_names:
         print fold_name
         X = []
         Y = []
         threads = []
-        files = os.listdir(data_path + fold_name)
+        files = os.listdir(data_folder + fold_name)
         for file in files:
             print file
-            fin_data = open(data_path + fold_name + '/' + file, 'r')
+            fin_data = open(data_folder + fold_name + '/' + file, 'r')
             nodeList = []
             preID = 0
             line = fin_data.readline().strip()
