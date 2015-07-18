@@ -66,16 +66,16 @@ if __name__ == '__main__':
             X.append(thread.getInstance(addVec=True))
             Y.append(thread.getLabel())
         print len(threads)
-        part_threads = []
+        """part_threads = []
         part_X = []
         part_Y = []
         for i in range(len(threads)):
             if i % 5 > 0 and i % 5 <= 1:
                 part_threads.append(threads[i])
                 part_X.append(X[i])
-                part_Y.append(Y[i])
-        # folds.append({'threads': threads, 'X': X, 'Y': Y})
-        folds.append({'threads': part_threads, 'X': part_X, 'Y': part_Y})
+                part_Y.append(Y[i])"""
+        folds.append({'threads': threads, 'X': X, 'Y': Y})
+        # folds.append({'threads': part_threads, 'X': part_X, 'Y': part_Y})
 
     crf = EdgeFeatureGraphCRF(n_states=3,
                               n_features=len(node_features) + dictLength,
