@@ -14,7 +14,7 @@ import json, os
 
 data_path = '../data/weibo/'
 node_features = ['NodeEmoji']
-edge_features = ['SameAuthor',
+edge_features_all = ['SameAuthor',
                  'Similarity',
                  'SentimentProp',
                  'AuthorRef',
@@ -24,11 +24,22 @@ edge_features = ['SameAuthor',
 
 if __name__ == '__main__':
 
+    # feature_dict init
+    feature_dict = {}
+    for idx, edge_feature in zip(xrange(7), edge_features_all):
+        feature_dict[idx] = edge_feature
+
     # get params
     param_C = float(sys.argv[1])
     param_tol = float(sys.argv[2])
     param_max_iter = int(sys.argv[3])
-    data_folder = str(sys.argv[4])
+    data_folder = str(sys.argv[5])
+    feature_str = str(sys.argv[4])
+
+    idxs = map(int,feature_str.split(","))
+    print idxs
+    edge_features = [feature_dict[idx] for idx in idxs]
+    print edge_features
 
     fold_names = os.listdir(data_folder)
     folds = []
